@@ -1,0 +1,151 @@
+﻿@page "/admin-scores"
+
+@using Hazard_game_application.Models
+@using Microsoft.AspNetCore.Authorization
+
+
+@attribute [Authorize(Roles = "admin")]
+
+
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JS
+
+<h3>Manage Scores</h3>
+
+<div class="scroll-container">
+    @if (scores == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!scores.Any())
+    {
+        <p>No scores yet.</p>
+    }
+    else
+    {
+        <ul class="scroll-list">
+            @foreach (var score in scores)
+            {
+                <li class="list-group-item">
+                    @if (editingScoreId == score.ScoreId)
+                    {
+                        <div class="d-flex align-items-center">
+                            <select class="form-select form-select-sm me-2" @bind="editResult">
+                                <option value="win">Win</option>
+                                <option value="lose">Lose</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary me-2" @onclick="() => SaveEdit(score)">
+                                Save
+                            </button>
+                            <button class="btn btn-sm btn-secondary" @onclick="CancelEdit">
+                                Cancel
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>User @score.UserId</strong> – Score ID: @score.ScoreId - @score.Result
+
+                            </div>
+                            <div>
+								<small class="me-2">@($"{score.CreatedAt.ToLocalTime():g}")</small>
+                                <button class="btn btn-sm btn-outline-secondary me-1"
+                                        @onclick="() => StartEdit(score)">
+                                    <span class="bi bi-pencil"></span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="() => DeleteScore(score)">
+                                    <span class="bi bi-trash"></span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+
+@code {
+    private List<Score> scores;
+    private int? editingScoreId;
+    private string editResult = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var token = await LocalStorage.GetItemAsync<string>("authToken");
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                Http.DefaultRequestHeaders.Authorization
+                    = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            scores = await Http.GetFromJsonAsync<List<Score>>("api/scores");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error retrieving scores: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteScore(Score score)
+    {
+        bool confirm = await JS.InvokeAsync<bool>("confirm", $"Delete score {score.ScoreId}?");
+        if (!confirm) return;
+
+        var response = await Http.DeleteAsync($"api/scores/{score.ScoreId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            scores!.Remove(score);
+            StateHasChanged();
+        }
+        else 
+        {
+            await JS.InvokeVoidAsync("alert", "failed to delete score");
+        }
+    }
+
+    private async Task SaveEdit(Score score)
+    {
+        var updated = new Score
+            {
+                ScoreId = score.ScoreId,
+                UserId = score.UserId,
+                Result = editResult,
+                CreatedAt = score.CreatedAt,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+        var resp = await Http.PutAsJsonAsync($"api/scores/{score.ScoreId}", updated);
+        if (resp.IsSuccessStatusCode)
+        {
+            score.Result = editResult;
+            score.UpdatedAt = updated.UpdatedAt;
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Failed to update score.");
+        }
+
+        editingScoreId = null;
+    }
+
+    private void StartEdit(Score score)
+    {
+        editingScoreId = score.ScoreId;
+        editResult = score.Result;
+    }
+
+    private void CancelEdit()
+    {
+        editingScoreId = null;
+    }
+
+}

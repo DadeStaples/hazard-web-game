@@ -1,0 +1,128 @@
+﻿@page "/my-scores"
+@using Hazard_game_application.Models
+@using Microsoft.AspNetCore.Components.Forms
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigate
+
+<div class="scroll-container">
+    <h3>My Scores</h3>
+
+    <div class="row gx-2 gy-2 align-items-center mb-3">
+        <div class="col-auto">
+            <label class="col-form-label">Search by date:</label>
+        </div>
+        <div class="col-auto">
+            <InputDate @bind-Value="filterDate" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label class="col-form-label">Generate report:</label>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-secondary" @onclick="NavigateToReport">
+                @(filterDate.HasValue
+                    ? $"Report for {filterDate:yyyy-MM-dd}"
+                    : "View Full Report")
+            </button>
+        </div>
+    </div>
+
+
+    @if (scores == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!scores.Any())
+    {
+        <p>No scores yet.</p>
+    }
+    else
+    {
+
+
+        <h5>Win/Loss Ratio: @GetWinLossRatio().ToString("F2")</h5>
+
+        @if (!FilteredScores.Any())
+        {
+            <p>No matching scores.</p>
+        }
+        else
+        {
+            <div class="scroll-container">
+                <ul class="scroll-list">
+                    @foreach (var score in FilteredScores)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@($"{score.Result} — {score.CreatedAt.ToLocalTime():g}")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    }
+
+
+</div>
+
+
+@code {
+    private List<Score> scores;
+    private DateTime? filterDate;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var token = await LocalStorage.GetItemAsync<string>("authToken");
+
+            Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+            var userIdClaim = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                Console.Error.WriteLine("User ID not found in token.");
+                return;
+            }
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var allScores = await Http.GetFromJsonAsync<List<Score>>("api/scores");
+            scores = allScores.Where(s => s.UserId == userId).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error retrieving scores: {ex.Message}");
+        }
+    }
+
+    private double GetWinLossRatio()
+    {
+        int wins = scores.Count(s => s.Result == "win");
+        int losses = scores.Count(s => s.Result != "win");
+
+        if (losses == 0) return wins;
+        return (double)wins / losses;
+    }
+
+
+    private IEnumerable<Score> FilteredScores =>
+        scores == null
+          ? Enumerable.Empty<Score>()
+          : filterDate.HasValue
+            ? scores.Where(s => s.CreatedAt.ToLocalTime().Date == filterDate.Value.Date)
+            : scores;
+
+    void NavigateToReport()
+    {
+        var url = "/my-scores/report";
+        if (filterDate.HasValue)
+            url += $"?date={filterDate:yyyy-MM-dd}";
+        Navigate.NavigateTo(url);
+    }
+
+
+}

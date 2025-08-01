@@ -1,0 +1,69 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = Hazard_game_application
+build_property.RootNamespace = Hazard_game_application
+build_property.ProjectDir = C:\Capstone Project\d424-software-engineering-capstone\frontend\Hazard_game_application\Hazard_game_application\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Capstone Project\d424-software-engineering-capstone\frontend\Hazard_game_application\Hazard_game_application
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/HazardGame.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSGF6YXJkR2FtZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/ManageScores.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFuYWdlU2NvcmVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/MyScoresReport.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTXlTY29yZXNSZXBvcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/My_scores.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTXlfc2NvcmVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Pages/Registration.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0cmF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-rk3txjmqu2
+
+[C:/Capstone Project/d424-software-engineering-capstone/frontend/Hazard_game_application/Hazard_game_application/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-fbyxihzba3

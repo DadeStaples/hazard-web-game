@@ -1,0 +1,139 @@
+﻿@page "/game"
+@inject Dice Dice
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthProvider
+
+@using Hazard_game_application.Models
+
+
+<h3>Hazard Game</h3>
+
+<h4>@statusMessage</h4>
+
+<div class="d-flex align-items-center mb-3">
+    @* Die 1 *@
+    <i class=@($"bi bi-dice{(die1>0 ? $"-{die1}" : "")}")
+       style="font-size:4rem; margin-right:1rem;"></i>
+
+    @* Die 2 *@
+    <i class=@($"bi bi-dice{(die2>0 ? $"-{die2}" : "")}")
+       style="font-size:4rem;"></i>
+</div>
+
+
+<h2>Total: @(die1 + die2)</h2>
+
+@if (!gameOver)
+{
+    <button class="btn btn-primary" @onclick="RollDice">Roll Dice</button>
+}
+else
+{
+    <button class="btn btn-success mt-2" @onclick="PlayAgain">Play Again</button>
+}
+
+@code {
+    @using System.IdentityModel.Tokens.Jwt
+    @using System.Security.Claims
+    @using System.Net.Http.Headers
+    @using System.Net.Http.Json
+
+    private int die1;
+    private int die2;
+    private int main = 0;
+    private string statusMessage = "Click 'Roll Dice' to begin!";
+    private bool gameOver = false;
+
+    private async Task RollDice()
+    {
+        (die1, die2) = Dice.Roll();
+        int total = die1 + die2;
+
+        if (main == 0)
+        {
+            if (total >= 5 && total <= 9)
+            {
+                main = total;
+                statusMessage = $"Main is set to {main}. Now roll again.";
+            }
+            else
+            {
+                statusMessage = $"Rolled {total}. Invalid main. Roll again.";
+            }
+        }
+        else
+        {
+            if (total == main)
+            {
+                statusMessage = $"You rolled {total} again! You win!";
+                gameOver = true;
+                await SubmitScore("win");
+            }
+            else if (total == 2 || total == 3 || total == 12)
+            {
+                statusMessage = $"You rolled {total}. You lose.";
+                gameOver = true;
+                await SubmitScore("lose");
+            }
+        }
+    }
+
+    private void PlayAgain()
+    {
+        die1 = 0;
+        die2 = 0;
+        main = 0;
+        gameOver = false;
+        statusMessage = "Click 'Roll Dice' to begin!";
+    }
+
+    private async Task SubmitScore(string result)
+    {
+        try
+        {
+            var token = await LocalStorage.GetItemAsync<string>("authToken");
+
+            // skip tracking if no user is logged in
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Console.WriteLine("No token found, user not logged in.");
+                return; 
+            }
+
+            // Extract user ID from JWT
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+            var userIdClaim = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "nameid");
+
+            if (userIdClaim == null)
+            {
+                Console.WriteLine("User ID not found in token.");
+                return;
+            }
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var score = new Score
+                {
+                    Result = result,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await Http.PostAsJsonAsync("api/scores", score);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Failed to submit score.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception submitting score: {ex.Message}");
+        }
+    }
+
+}

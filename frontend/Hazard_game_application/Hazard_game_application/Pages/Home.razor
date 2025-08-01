@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+<PageTitle>Home</PageTitle>
+
+<div class="container py-4">
+    <h3 class="mb-4">Hazard Dice Web Game</h3>
+
+    <p>
+        Hazard is an early English dice game that dates back to the 14th century.
+        Most popular in the gaming clubs of 17th and 18th century London, Hazard
+        derives its name from the risk associated with its unforgiving rules and
+        bets placed on the outcome of the game. This game is played with two dice
+        and the rules are as follows:
+    </p>
+
+    <h5 class="mt-4">Rules</h5>
+    <ul class="mb-4">
+        <li>
+            <strong>Main declaration:</strong> One participant—the caster—announces a
+            <em>main</em>, a target number from 5 to 9, then rolls two dice.
+        </li>
+        <li>
+            <strong>First roll:</strong> Rolling the main is an immediate win (“nicking”),
+            while rolling a 2 or 3 is an immediate loss (“throwing out”). Outcomes of 11
+            or 12 vary by main (e.g., on a main of 7, an 11 wins but a 12 loses).
+        </li>
+        <li>
+            <strong>Subsequent rolls:</strong> If the first roll is neither win nor loss,
+            that total becomes the <em>chance</em>. The caster keeps rolling until they roll
+            either the chance (a win) or the main (a loss).
+        </li>
+    </ul>
+
+    <h5 class="mt-4">Game Adaptation</h5>
+    <p>
+        For this application, we’ve adapted the traditional rules slightly. Instead of
+        choosing a main up front, the caster simply rolls the dice until a valid main
+        (5–9) appears, and that value becomes the main for the rest of the round.
+    </p>
+
+    <strong>Click on the "Hazard Game" tab in the navigation menu to start playing!</strong>
+</div>

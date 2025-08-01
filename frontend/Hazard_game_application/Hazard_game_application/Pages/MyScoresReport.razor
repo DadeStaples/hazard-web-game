@@ -1,0 +1,86 @@
+﻿@page "/my-scores/report"
+@using Hazard_game_application.Models
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using System.Net.Http.Json
+@attribute [Authorize]
+
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>My Scores Report</h3>
+
+@if (FilterDate.HasValue)
+{
+    <p><em>Filtered for @FilterDate.Value.ToString("D")</em></p>
+}
+
+<button class="btn btn-secondary mb-3" @onclick="GoBack">← Back</button>
+
+@if (scores == null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (!FilteredScores.Any())
+{
+    <p>No matching scores.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Score ID</th>
+                <th>Result</th>
+                <th>Date/Time (UTC)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var score in FilteredScores)
+            {
+                <tr>
+                    <td>@score.ScoreId</td>
+                    <td class="text-capitalize">@score.Result</td>
+                    <td>@score.CreatedAt.ToUniversalTime().ToString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // binds ?date=YYYY-MM-DD from the query string
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "date")]
+    public DateTime? FilterDate { get; set; }
+
+    private List<Score>? scores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // attach the JWT
+        var token = await LocalStorage.GetItemAsync<string>("authToken");
+        Http.DefaultRequestHeaders.Authorization =
+          new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        // fetch all and keep only this user's
+        var all = await Http.GetFromJsonAsync<List<Score>>("api/scores");
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = int.Parse(auth.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        scores = all!.Where(s => s.UserId == userId).ToList();
+    }
+
+    private IEnumerable<Score> FilteredScores =>
+      scores == null
+        ? Enumerable.Empty<Score>()
+        : FilterDate.HasValue
+          ? scores.Where(score => score.CreatedAt.ToLocalTime().Date == FilterDate.Value.Date)
+          : scores;
+
+    private void GoBack() =>
+      Navigation.NavigateTo("/my-scores");
+}
